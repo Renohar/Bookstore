@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load cart_template_tag %}
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Summary</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 ">
+              <h1 style="padding-top: 10px;" ><span>Bookstore</span></h1>
+              <a href="{% url 'index'  %}" class="btn btn-default">Home</a>
+              <!-- <span></span> -->
+            </div >
+            <div class="col-md-9 ">
+              <div class="nav justify-content-end">
+                <ul class="nav">
+                  {% if user.is_authenticated %}
+                  <li class="nav-item"><a  class="nav-link" href="{% url 'orderlist' %}">Cart
+                      <span class="badge badge-light">{{request.user | cart_item_count}}</span>
+                  </a></li>
+                  <li class="nav-item"><a class="nav-link disabled" href="">Welcome {{user.username}}</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}"> Logout</a></li>
+                    {% if user.is_superuser %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'addproduct' %}"> Add Product</a></li>
+                    {% endif %}
+                  {% else %}
+                  <li class="nav-item"><a class="nav-link" href="{% url 'login' %}"> Login</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{% url 'register' %}"> Register</a></li>
+                  {% endif %}
+                </ul>  
+              </div>  
+            </div> 
+        </div>
+        <hr>
+        <main id="main">
+            <section id="breadcrumbs" class="breadcrumbs">
+                <div class="container">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <!-- <h2>Portfolio Details</h2> -->
+                    </div>
+                </div>
+            </section>
+            <section id="portfolio-details" class="portfolio-details">
+                <div class="container">
+                    <!-- {% for message in messages %}
+                    <h2>{{message}}</h2>
+                    {% endfor %} -->
+                    <div class="row gy-4">
+                        <div class="col-lg-4">
+                            <div class='portfolio-info'>
+                                <h3>Payment Summary</h3>
+                                <ul>
+                                    <li><strong>Total Amount</strong>: {{final_price}}</li>
+                                    <li>
+                                        <button id="rzp-button1" class="btn btn-sm btn-dark btn-block">
+                                           Now 
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </section>
+        </main>
+
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+        <script>
+            var options = {
+                'key' : '{{razorpay_merchant_id}}',
+                'amount' : '{% widthratio final_price 1 100 %}',
+                'currency' : 'INR',
+                'name' : 'BOOKSTORE',
+                'description' : 'Transaction',
+                'order_id' : '{{ order_id }}',
+                'callback_url' : '{% url "handlerequest" %}',
+                'prefill' : {
+                    'name' : '{{request.user.username}}',
+                    'email' : '{{request.user.email}}',
+                    'contact' : '+91' + '{{ request.user.phone_field}}'
+                },
+                'theme' : {
+                    'color' : '#2BA977'
+                }
+            };
+            var rzp1 = new Razorpay(options);
+            document.getElementById('rzp-button1').onclick = function(e) {
+                rzp1.open();
+                e.preventDefault();
+            }
+        </script>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>  
+</body>
+</html>
